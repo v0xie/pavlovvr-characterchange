@@ -79,6 +79,7 @@ Everybody in the Pavlov-VR discord, especially the Workshop Wizards!
 
 Links:
 Pavlov Discord: https://discord.gg/pavlov-vr
+Example map: https://steamcommunity.com/sharedfiles/filedetails/?id=1686451807
 
 
 License:
