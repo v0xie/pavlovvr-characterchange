@@ -1,5 +1,24 @@
-Pavlov VR Character Change Framework 0.1.0 by voxie
+Character Change Framework for Pavlov VR 0.1.0 
+Created by voxie
 Released March 25th, 2019
+
+This is a modding framework for Pavlov VR maps that will enable modders to change the player model 
+of the player characters in game.
+
+Credits:
+Pavlov VR © davevillz Studios Ltd.
+Animation Starter Pack courtesy of Epic Games
+Everybody in the Pavlov-VR Discord, especially the Workshop Wizards!
+
+Links:
+Pavlov VR Discord: https://discord.gg/pavlov-vr
+Example map: https://steamcommunity.com/sharedfiles/filedetails/?id=1686451807
+
+Disclaimer:
+I am in no way officially associated with Pavlov VR or its team. 
+This software is in no way officially associated with Pavlov VR or its team. 
+Please avoid contacting the Pavlov VR team for support with this software.
+If you need support with this software, contact @voxie on the Pavlov VR Discord.
 
 Readme:
 Quick-start if you have a pre-existing Character and Character AnimBlueprint: 
@@ -67,20 +86,6 @@ Limitation: The custom character has no collision
     - It could be possible to detect overlap events in the Bullet collision channel to add damage to
       the player pawn when the custom character is shot. As of right now, there is no collision for
       the custom character.
-
-
- 
-
-Credits:
-Animation Starter Pack courtesy of Epic Games
-Pavlov VR by davevillz Studios Ltd.
-Everybody in the Pavlov-VR discord, especially the Workshop Wizards!
-
-
-Links:
-Pavlov Discord: https://discord.gg/pavlov-vr
-Example map: https://steamcommunity.com/sharedfiles/filedetails/?id=1686451807
-
 
 License:
 Copyright 2019 voxie
