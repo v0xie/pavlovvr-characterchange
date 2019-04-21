@@ -1,18 +1,9 @@
-Character Change Framework for Pavlov VR 0.1.0 
-Created by voxie
-Released March 25th, 2019
+Pavlov VR Character Change Framework 0.2.0 by voxie
+Released April 22nd, 2019
 
-This is a modding framework for Pavlov VR maps that will enable modders to change the player model 
+This is a modding framework for Pavlov VR maps that enables modders to change the player model 
 of the player characters in game.
 
-Credits:
-Pavlov VR Â© davevillz Studios Ltd.
-Animation Starter Pack courtesy of Epic Games
-Everybody in the Pavlov-VR Discord, especially the Workshop Wizards!
-
-Links:
-Pavlov VR Discord: https://discord.gg/pavlov-vr
-Example map: https://steamcommunity.com/sharedfiles/filedetails/?id=1686451807
 
 Disclaimer:
 I am in no way officially associated with Pavlov VR or its team. 
@@ -20,72 +11,108 @@ This software is in no way officially associated with Pavlov VR or its team.
 Please avoid contacting the Pavlov VR team for support with this software.
 If you need support with this software, contact @voxie on the Pavlov VR Discord.
 
+
+Credits:
+Pavlov VR © davevillz Studios Ltd.
+Animation Starter Pack courtesy of Epic Games
+Everybody in the Pavlov-VR Discord, especially the Workshop Wizards!
+
+
+Join the Pavlov Discord: https://discord.gg/pavlov-vr
+Example map: https://steamcommunity.com/sharedfiles/filedetails/?id=1686451807
+
+
+Requirements for a Custom Character Model:
+1) The custom character must be rigged and scaled to the Epic skeleton (UE4 Mannequin)
+	If it is not rigged to the Epic skeleton, you can try retargeting the skeletal mesh to
+	the Epic skeleton. Warning, this often produces suboptimal results, such as incorrect
+        bone scale and stretching. 
+
+	You must set Copy Pose as Mesh to true when spawning the BP_CustomCharacterHandler, 
+	as Set MasterPoseComponent will not work with a different skeleton. See section below
+	on setting up Copy Pose as Mesh.
+
+	See link below for more details on retargeting:
+	https://docs.unrealengine.com/en-us/Engine/Animation/RetargetingDifferentSkeletons
+
+	See link below for details on re-rigging:
+	https://wiki.unrealengine.com/Exporting_the_Mannequin_Skeleton_from_Unreal_Engine_4_to_Blender_and_Re-importing
+
+
 Readme:
-Quick-start if you have a pre-existing Character and Character AnimBlueprint: 
+Quick-start:
 0) Migrate this project into your own and copy the CustomCharacter folder into your UGC folder.
-1) Set your Character to inherit from BP Custom Character Handler in Class Settings
-2) Set your Character AnimBlueprint to implement Blueprint Interface BPI Custom Character Interface
-    - Make a new variable in the AnimBlueprint of variable type Skeletal Mesh Component
-    - In the EventGraph, Set up "Event Set Pavlov Skel Mesh to Copy" as seen in 
-         example DifferentCharacter_AnimBlueprint
-    - Set up the AnimGraph like DifferentCharacter_AnimBlueprint
-3) Drag actor Pavlov_GameLogic_CC into your level and link the definition variable to your definition
-     file.
-4) In the Pavlov_GameLogic_CC blueprint EventGraph, set up the CharacterSpawnArray 
-    - Each array slot corresponds to a team-id.
-    - Use a minimum of two character classes if enabling teams
-5) Set up Pavlov Spawn actors in your level.
-6) In your definition file, set Compatibility to Custom, enable Custom Game Mode, and add a Custom 
-   Game Mode Label of your choosing.
+   Leave the MovementAnimSetPro folder in the Content folder, this is important!
+
+1) In your definition file, in Compatibility, enable Custom and disable every other mode.
+   Check the box that says Custom Game Mode, and give your game mode a custom label.
+   (I have not tested that this works in standard game modes.)
+
+2) Drag the Pavlov_GameLogic_CC actor into your level and set the definition file in the Details
+   panel.
+
+3) In Enum_CustomCharacters, add an enumerator for each custom character you want to have in your
+   game mode.
+
+4) In BP_CustomCharacterHandler, in the function SetCustomCharacterMesh, for each character you 
+   have, set the skeletal mesh to your custom character mesh and call any necessary nodes like
+   Set Material here.
+
+5) (OPTIONAL BUT NECESSARY IF YOU ARE USING COPY POSE AS MESH)
+   a) In BP_CustomCharacterHandler, in the function SetupCopyPoseAsMesh, configure SetAnimInstanceClass
+   to use the appropriate AnimBlueprint for your skeletal mesh. Replace the Cast to BP_Mannequin_AnimBP
+   with a cast to your AnimBlueprint and copy the wiring.
+
+   b) In your Character's AnimBlueprint, in the Class Settings, implement interface BPI CopyPoseAsMesh Interface.
+   Add a SkeletalMeshComponent variable named MeshToCopy, and in the EventGraph, make an Event Set Mesh To Copy
+   that sets MeshToCopy to the Event's Pavlov Skel Mesh to Copy output.
+
+   c) In your AnimGraph, put a CopyPoseFromMesh node that takes in MeshToCopy and outputs into a Layered Blend by
+   Bone node, which outputs into Final Animation Pose.
+
+   d) In Pavlov_GameLogic_CC, in Spawn Custom Character's Spawn BP_CustomCharacterHandler node, set
+      UsesMasterPoseComponent false.
+
+   See CustomCharacter/Characters/UE4_Mannequin/Mesh/BP_Mannequin_AnimBlueprint for an example.
+
+6) In Pavlov_GameLogic_CC, in Spawn Custom Character's Spawn BP_CustomCharacterHandler node, configure options
+   PavlovMeshVisibility on spawn, if true, keeps the default mesh on a player spawn.
+   If false, the custom character will show on player spawn.
+   Set Custom Character Enum to the character you wish to spawn. This can easily be set up to spawn different
+   characters per team.
+
+7) Drag a BP_CC_ChangeVolume into the level. In the Details panel, set the CustomCharacterToSwitchTo enum 
+   to the custom character you want to switch to when walking into the volume. If you want the volume to 
+   hide the custom character and show the Pavlov soldier, set true RestorePavSkelVisibility. If you are 
+   debugging and wish to show the custom character and Pavlov soldier at the same time, check true Debug.
+
+8) In BP_CC_ChangeVolume, in the ConstructionScript, set the MakeLiteralText to a name that describes
+   your character.
+
+9) (VERY IMPORTANT WILL NOT WORK WITHOUT THIS STEP!)
+   Right click your custom character skeletal mesh and assign skeleton as the skeleton in the MovementAnimsetPro 
+   folder.
+
+10) Set up Pavlov Spawns and stage or deploy.
+    That's it!
+
 
 Known Bugs / Limitations:
-Bug: Sometimes the characters will not replicate the player pose and will t-pose if everybody
-     spawns at once, like in the beginning of a round.
-    - The check for this is in the Character State Update Timer, where if the actor's setup variables
-      are not set, it will pass the proper values again and set the actor's setup variables again. For
-      an unknown reason, this happened often on early rounds and happened less frequently in later
-      rounds. A suicide on the part of the player usually fixes this. I added a delay between player
-      spawns that will hopefully mitigates this problem, because it often happens on round transitions.
-
-Bug: Sometimes the custom characters will not kill properly on player death. 
-    - There are a lot of checks to try and reduce this behavior, including the Character State
-      Update Timer, Event CleanUpCustomCharacters, and adding tags to the Player State, Player
-      Controller, and Pawn to make sure that at least one of those actors' tags can be checked
-      by the Custom Character actors so they can kill when they should. This happens when there are
-      many players usually.
-
-Bug: When the player crouches, the model slides backwards and loses sync with the player model
-    - This might be because of a shifting component transform that is not taken into account when
-      attaching the custom character mesh to the Pavlov skeletal mesh. As a consequence, when the
-      player crouches, the model shifts backwards and the armor/helmet/weapons stay in place.
-
-Bug: At the beginning of the game, it is not possible to change your team in the menu without
-     either being dead or spamming the button.
-
-Limitation: On round end, all players are killed.
-    - This is probably easy to change. On player spawn, there would need to be a check that a BP
-      Custom Character actor and BP Custom Character Handler already exist for that player, and to
-      not spawn them if this is true.
-
-Limitation: On player killed, all custom character actors associated with that player are 
-    destroyed, and multiple actors are being spawned by the server every time a player spawns.
-    - Ideally, there would be one actor, that when passing the player state to the actor, would set
-      up / spawn any additional actors. The problem I ran into when doing this is that the mesh would
-      not replicate its pose, even locally.
-
-Limitation: The Copy Pose from Mesh can distort the custom character model.
-    - This is especially evident for models that have dissimilar proportions to the UE4Mannequin model
-      or Pavlov Player Model. If it's a small distortion on a few bones, it might be able to be worked
-      around by using the Transform Bone node in the Character's AnimBlueprint.
-
-Limitation: Copy Pose from Mesh only works for skeletal meshes rigged to the Epic skeleton:
-    - This might be able to be worked around with Animation retargeting, but I was not able to figure
-      this out in my own tests.
-
 Limitation: The custom character has no collision
     - It could be possible to detect overlap events in the Bullet collision channel to add damage to
       the player pawn when the custom character is shot. As of right now, there is no collision for
       the custom character.
+
+Limitation: Default Spawn and Possess Pawns node is used.
+    - When using my own custom spawn and possess logic, I ran into problems where players would spawn but not
+      possess their pawns. The default Spawn and Possess Pawns spawn logic is much more reliable.
+
+Limitation: Tags are cleared on player spawn.
+    - It might be desired to keep track of player state by use of tags. Currently, all tags are removed on
+      player spawn.
+
+Limitation: Currently, character changing is only compatible with Custom game mode.
+    - This can be avoided by placing the logic in the gamemode in a separate actor. 
 
 License:
 Copyright 2019 voxie

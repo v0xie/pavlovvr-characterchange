@@ -7,6 +7,14 @@
 		{
 			"Name": "ApexDestruction",
 			"Enabled": true
+		},
+		{
+			"Name": "SteamAudio",
+			"Enabled": true
+		},
+		{
+			"Name": "CommunityModkit",
+			"Enabled": false
 		}
 	]
 }
